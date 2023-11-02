@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="stats" class="modal fade" id="modal-health-stats" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statsModalLabel">Add New Entry</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-log-form-stats">
+                    <input type="hidden" name="id" id="input-id" />
+                    <div class="form-group row">
+                        <label class="col-3 col-form-label">Type</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="type" id="input-type" placeholder="Type" value="Health Stats" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-date" class="col-3 col-form-label">Date</label>
+                        <div class="col-6 datetimepicker1" id="datetimepicker1" data-target-input="nearest" style="padding-right: 0px">
+                            <input type="text" class="form-control datetimepicker-input" id="input-date" name="date" data-toggle="datetimepicker" data-target=".datetimepicker1" />
+                        </div>
+                        <div class="col-3 datetimepicker2" id="datetimepicker2" data-target-input="nearest" style="padding-left: 0px">
+                            <input type="text" class="form-control datetimepicker-input" style="padding-left: 2px; padding-right: 2px" id="input-time" name="time" data-toggle="datetimepicker" data-target=".datetimepicker2" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-height" class="col-3 col-form-label">Height</label>
+                        <div class="col-9">
+                            <input type="number" class="form-control" name="height" id="input-height" placeholder="Height in cm">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-weight" class="col-3 col-form-label">Weight</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="weight" id="input-weight" placeholder="Weight in kg">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-head-cm" class="col-3 col-form-label">Head circ.</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="headCircumference" id="input-head-cm" placeholder="Head circumference in cm">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-jaundice" class="col-3 col-form-label">Jaundice level</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="jaundiceLevel" id="input-jaundice" placeholder="Jaundice level">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-remarks" class="col-3 col-form-label">Remarks</label>
+                        <div class="col-9">
+                            <textarea name="remarks" class="form-control" id="input-remarks"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="delete-btn btn btn-warning">Delete</button>
+                <button type="button" class="save-btn btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

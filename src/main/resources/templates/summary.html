@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" class="h-100">
+<head>
+    <title>Cyrus</title>
+    <th:block th:include="fragments/common.html :: headerfiles"></th:block>
+
+</head>
+<body class="d-flex h-100 text-center">
+
+<nav th:insert="fragments/navbar.html :: navbar" />
+
+<div class="container pt-5 mt-3 text-left">
+    <h1>Cyrus' Stats</h1><br/>
+    <h3>Age: [(${age})]</h3>
+    <h5>Corrected Age: [(${correctedAge})]</h5>
+    <br/>
+    <h3>Weight: [(${weight})]<br/>
+        Height: [(${height})]<br/>
+        Head circumference: [(${headCircumference})]<br/>
+        Jaundice level: [(${jaundiceLevel})]<br/>
+    </h3>
+    <br />
+    <h3>Last Feeding<br />
+        - Time: [(${lastFeedingTime})] ( [(${lastFeedingTimeAgo})] )<br/>
+        - Volume: [(${lastFeedingVolume})] mL<br/>
+    </h3>
+</div>
+
+
+
+<div class="mt-auto text-white-50">
+    <div class="footer fixed-bottom" th:insert="fragments/common.html :: footer"></div>
+</div>
+
+</div>
+
+
+</body>
+
+</html>

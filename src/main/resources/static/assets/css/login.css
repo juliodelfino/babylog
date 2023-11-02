@@ -1,0 +1,10 @@
+body {
+  background-image: url('assets/images/jungle_babies.jpg');
+  background-size: cover;
+  width; 100vw;
+  height: 100vh;
+}
+
+.card {
+    top: 20%;
+}

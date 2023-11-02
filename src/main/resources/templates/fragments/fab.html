@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--FAB = Floating Action Button-->
+<div th:fragment="floating_action_button" class="fab-container">
+    <div class="fab fab-icon-holder">
+        <i class="fa fa-plus"></i>
+    </div>
+    <ul class="fab-options">
+        <li data-toggle="modal" data-target="#modal-feeding">
+            <span class="fab-label">Feeding</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/baby-bottle-icon-27.jpg" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-others">
+            <span class="fab-label">Diaper Change</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/diaper.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-medication">
+            <span class="fab-label">Medication</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/medicine.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-vaccine">
+            <span class="fab-label">Vaccine</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/vaccine.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-clinic-visit">
+            <span class="fab-label">Clinic Visit</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/clinic.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-health-stats">
+            <span class="fab-label">Health Stats</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/heartbeat.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+        <li data-toggle="modal" data-target="#modal-others">
+            <span class="fab-label">Other</span>
+            <div class="fab-icon-holder">
+                <img src="assets/images/others.png" width="30px" style="padding-top: 10px" />
+            </div>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

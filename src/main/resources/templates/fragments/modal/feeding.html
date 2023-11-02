@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="feeding" class="modal fade" id="modal-feeding" tabindex="-1" role="dialog" aria-labelledby="feedingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedingModalLabel">Add New Entry</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-log-form-feeding">
+                    <input type="hidden" name="id" id="input-id" />
+                    <div class="form-group row">
+                        <label class="col-3 col-form-label">Type</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="type" id="input-type" placeholder="Type" value="Feeding" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-date" class="col-3 col-form-label">Date</label>
+                        <div class="col-6 datetimepicker1" id="datetimepicker1" data-target-input="nearest" style="padding-right: 0px">
+                            <input type="text" class="form-control datetimepicker-input" id="input-date" name="date" data-toggle="datetimepicker" data-target=".datetimepicker1" />
+                        </div>
+                        <div class="col-3 datetimepicker2" id="datetimepicker2" data-target-input="nearest" style="padding-left: 0px">
+                            <input type="text" class="form-control datetimepicker-input" style="padding-left: 2px; padding-right: 2px" id="input-time" name="time" data-toggle="datetimepicker" data-target=".datetimepicker2" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-3 col-form-label">Food</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="food" id="input-food" placeholder="Food" value="milk">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-volume" class="col-3 col-form-label">Volume</label>
+                        <div class="col-3">
+                            <input type="number" class="form-control font-weight-bold" id="input-volume-text" placeholder="0">
+                        </div>
+                        <div class="col-6">
+                            <input type="range" class="form-control" name="volume" id="input-volume" placeholder="Volume (mL)" step="5" max="300">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-reflux" class="col-3 col-form-label">Reflux?</label>
+                        <div class="col-9">
+                            <input type="number" class="form-control" name="reflux" id="input-reflux" placeholder="Amount of reflux (mL), if any">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-3">Hiccups?</div>
+                        <div class="col-9">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="hiccups" id="gridCheck1">
+                                <label class="form-check-label" for="gridCheck1">
+                                    Yes, hiccups!
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-remarks" class="col-3 col-form-label">Remarks</label>
+                        <div class="col-9">
+                            <textarea name="remarks" class="form-control" id="input-remarks"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="delete-btn btn btn-warning">Delete</button>
+                <button type="button" class="save-btn btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

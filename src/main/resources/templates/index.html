@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en" class="h-100">
+<head>
+    <title>Cyrus</title>
+    <th:block th:include="fragments/common.html :: headerfiles"></th:block>
+
+    <style>
+
+    body {
+        font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+        width: 100%; height: 100%;
+    }
+
+    .tableFixHead          { overflow-y: auto; height: 90%; }
+    .tableFixHead thead th { position: sticky; top: 0; }
+
+    /* Just common table stuff. Really. */
+    th     { background:#ddd; }
+
+    .card {
+        color: #aaa;
+    }
+
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (max-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+
+        .tableFixHead tbody tr { font-size: 10pt }
+      }
+
+.fa-2 {
+    font-size: 2em;
+}
+
+.fab-container {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 999;
+    cursor: pointer;
+}
+
+.fab-icon-holder {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background: #eee;
+    border: solid 1px black;
+    opacity: 0.8;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fab-icon-holder:hover {
+    opacity: 0.9;
+}
+
+.fab-icon-holder i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+    font-size: 25px;
+    color: #ffffff;
+}
+
+.fab {
+    width: 60px;
+    height: 60px;
+    background: #007bff;
+}
+
+.fab-options {
+    list-style-type: none;
+    margin: 0;
+
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+
+    opacity: 0;
+
+    transition: all 0.3s ease;
+    transform: scale(0);
+    transform-origin: 85% bottom;
+}
+
+.fab:hover+.fab-options,
+.fab-options:hover {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.fab-options li {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+}
+
+.fab-label {
+    padding: 2px 5px;
+    align-self: center;
+    user-select: none;
+    white-space: nowrap;
+    border-radius: 3px;
+    font-size: 16px;
+    background: #666666;
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    margin-right: 10px;
+}
+
+
+    </style>
+
+</head>
+<body class="d-flex h-100 text-center">
+
+<nav th:insert="fragments/navbar.html :: navbar" />
+
+<div class="container pt-5 mt-3">
+    <div class="row tableFixHead">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Time</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div th:insert="fragments/fab.html :: floating_action_button" />
+
+<div th:insert="fragments/modal/medication.html :: medication" />
+<div th:insert="fragments/modal/vaccine.html :: vaccine" />
+<div th:insert="fragments/modal/clinicvisit.html :: clinic" />
+<div th:insert="fragments/modal/healthstats.html :: stats" />
+<div th:insert="fragments/modal/feeding.html :: feeding" />
+<div th:insert="fragments/modal/others.html :: others" />
+
+
+<div class="mt-auto text-white-50">
+    <div class="footer fixed-bottom" th:insert="fragments/common.html :: footer"></div>
+</div>
+
+<div id="rowActionsContainer" style="display: none">
+    <span id="rowActions" style='float: right'><button id='copyBtn'>Copy</button></span>
+</div>
+
+</div>
+
+
+</body>
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+const codeFromUrl = urlParams.get('code');
+let jsonData = null;
+
+var existingModalTypes = ["feeding", "medication", "vaccine", "clinic-visit", "health-stats"];
+var currentModalType = null;
+var currentModal = null;
+let rowActions = null;
+
+$(document).ready(function(){
+
+    rowActions = $("#rowActions");
+    refreshLogsTable();
+    setupSearchFormAjax();
+
+
+    $('.datetimepicker1').datetimepicker({ useStrict: true, format: 'MMMM D, YYYY' });
+    $('.datetimepicker2').datetimepicker({ useStrict: true, format: 'h:mm A' });
+    $("#input-volume").on("input change", function() { $("#input-volume-text").val($(this).val()); });
+    $('#input-volume-text').on('input', function() { $('#input-volume').val($(this).val()); });
+
+    $('.fab-options li').click(function(){
+        let type = $(this).find(".fab-label").html();
+        currentModalType = type.replace(" ","-").toLowerCase();
+        currentModalType = existingModalTypes.includes(currentModalType) ? currentModalType : 'others';
+        currentModal = $("#modal-" + currentModalType);
+        newData = {id: null, type: type, timestamp: moment(), details: ""};
+        if (type.toLowerCase() == "feeding") {
+            newData['details'] = {food: "milk", volume: 0, hiccups: false, reflux: null, remarks: ""};
+        } else if (type.toLowerCase() == "medication") {
+            newData['details'] = {name: "", remarks: ""};
+        }
+        setModalData(currentModal, newData);
+
+    });
+
+    $('.save-btn').click(function(){
+        currentModal.modal('hide');
+        inputFields = {};
+        currentModal.find("form :input").each(function(){
+             var input = $(this);
+             var value = input.val();
+             if (input.attr('name') == 'hiccups') {
+                value = input.prop('checked');
+             } else if (input.attr('name') == 'date') {
+                value = moment(input.val(), "MMMM D, YYYY").format("YYYY-MM-DD");
+             } else if (input.attr('name') == 'time') {
+                value = moment(input.val(), "h:mm A").format("HH:mm");
+             }
+             inputFields[input.attr('name')] = value;
+        });
+        inputFields['timestamp'] = inputFields['date'] + "T" + inputFields['time'] + ":00+0800";
+        delete inputFields['date'];
+        delete inputFields['time'];
+
+        let url = (inputFields.id ? "/update_" : "/add_") + currentModalType;
+        $.post(url, inputFields).done(refreshLogsTable);
+    });
+
+    $('.delete-btn').click(function(){
+        let tmpType = currentModal.find(":input[name='type']").val();
+        if (confirm("Are you sure you want to delete this " + tmpType + " log entry?")) {
+
+            let tmpId = currentModal.find(":input[name='id']").val();
+            currentModal.modal('hide');
+            $.post("/delete", {id: tmpId}).done(refreshLogsTable);
+        }
+    });
+
+    if (codeFromUrl) {
+        $('#codeInput').val(codeFromUrl);
+        $('#submit-btn').trigger("click");
+    }
+
+    $('#copyBtn').click(function(){
+        let logId = rowActions.parent().parent().attr('id').replace('log-', '');
+        $.post("/duplicate", {id: logId}).done(refreshLogsTable);
+    });
+});
+
+function refreshLogsTable() {
+
+
+    rowActions.appendTo($("#rowActionsContainer"));
+    $.get( "/logs").done(populateLogsTable);
+}
+
+function populateLogsTable(data) {
+
+    let logsTable = $(".tableFixHead tbody")
+        logsTable.empty();
+
+        jsonData = JSON.parse(data);
+        Object.keys(jsonData).sort().reverse().forEach(function(k){
+
+            var totalFeedingVolume = 0;
+            var headerDate = moment(k, "YYYY-MM-DD").format("ddd, MMM D, YYYY");
+            var age = moment(k, "YYYY-MM-DD").diff(moment('2020-09-05'), 'months');
+            var rowGroupHeader = $('<tr><td colspan="3" class="text-left font-weight-bold text-light bg-secondary">'
+             + headerDate + ' [' + age + ' months old] - [Milk intake: <span class="feed-volume"></span>mL]</td></tr>');
+            logsTable.append(rowGroupHeader);
+            jsonData[k].forEach(function(v){
+                jsonDesc = JSON.parse(v.description);
+                kvEqualsDesc = typeof(jsonDesc) === 'string' ? jsonDesc : Object.entries(jsonDesc).map(function(e) { return e[0] + ": " + e[1]; }).join("<br/>");
+                tmpDesc = v.description && (v.description != '\"\"') ? kvEqualsDesc : ('<span class="text-muted">' + v.type + '</span>');
+                tmpType = v.type.toLowerCase() == 'feeding' && (jsonDesc.food && !jsonDesc.food.toLowerCase().includes('milk')) ? 'solids' : v.type;
+                logsTable.append('<tr class="log-row" id="log-' + v.id + '">'
+                    + '<td><a href="#" class="log-edit btn btn-outline-secondary" title="' + v.type + '">' + getIconHtml(tmpType) + '</a></td>'
+                    + '<td class="text-nowrap">' + moment(v.time, "HH:mm").format("LT") + '</td>'
+                    + '<td class="text-left">' + tmpDesc + '</td>'
+                    + '</tr>');
+                if (v.type.toLowerCase() == 'feeding') {
+                    totalFeedingVolume += jsonDesc.volume;
+                }
+            });
+            rowGroupHeader.find(".feed-volume").text(totalFeedingVolume);
+
+        });
+
+        $('.log-edit').click(function(){
+            let logId = $(this).parent().parent().attr('id').replace('log-', '');
+            $.get("/log", {id: logId}).done(function(data) {
+                data = JSON.parse(data);
+
+                currentModalType = data.type.replace(" ", "-").toLowerCase();
+                currentModalType = existingModalTypes.includes(currentModalType) ? currentModalType : 'others';
+                currentModal = $("#modal-" + currentModalType);
+                setModalData(currentModal, data);
+                currentModal.modal('show');
+             });
+        });
+
+    $(".log-row").click(function(){
+        let child = $(this).children("td:last-child");
+        rowActions.appendTo(child);
+    });
+}
+
+function setupSearchFormAjax() {
+    $("#search-form").submit(function(e) {
+
+        e.preventDefault();
+
+        var form = $(this);
+        var url = form.attr('action');
+
+        $.post(url, form.serialize()).done(populateLogsTable);
+    });
+}
+
+
+function getIconHtml(type) {
+
+    let iconMap = {
+        'feeding' : '<img src="assets/images/baby-bottle-icon-27.jpg" width="20px" />',
+        'solids' : '<img src="assets/images/banana.png" width="20px" />',
+        'sleep' : '<img src="assets/images/pillow-zz.png" width="20px" />',
+        'bath' : '<img src="assets/images/baby-bath.png" width="20px" />',
+        'diaper-change' : '<img src="assets/images/diaper.png" width="20px" />',
+        'milestone' : '<img src="assets/images/start-flag-icon.jpg" width="20px" />',
+        'medication' : '<img src="assets/images/medicine.png" width="20px" />',
+        'vaccine' : '<img src="assets/images/vaccine.png" width="20px" />',
+        'clinic-visit' : '<img src="assets/images/clinic.png" width="20px" />',
+        'health-stats' : '<img src="assets/images/heartbeat.png" width="20px" />',
+        'other' : '<img src="assets/images/others.png" width="20px" />'
+    };
+    return iconMap[type.replace(" ", "-").toLowerCase()];
+}
+
+function setModalData(modal, data) {
+
+    modal.find(".modal-title").html(data.id ? "Update Entry" : "Add New Entry");
+    modal.find(":input[name='id']").val(data.id);
+    modal.find(":input[name='type']").val(data.type);
+    modal.find(":input[name='date']").val(moment.tz(data.timestamp, "[(${timezone})]").format("MMMM D, YYYY"));
+    modal.find(":input[name='time']").val(moment.tz(data.timestamp, "[(${timezone})]").format("hh:mm A"));
+    if (data.type.toLowerCase() == "feeding") {
+        modal.find(":input[name='food']").val(data.details.food);
+        modal.find(":input[name='volume']").val(data.details.volume);
+        modal.find("#input-volume-text").val(data.details.volume);
+        modal.find(":input[name='reflux']").val(data.details.reflux);
+        modal.find(":input[name='hiccups']").val(data.details.hiccups);
+        modal.find(":input[name='remarks']").val(data.details.remarks);
+    } else if (data.type.toLowerCase() == "medication") {
+        modal.find(":input[name='name']").val(data.details.name);
+        modal.find(":input[name='remarks']").val(data.details.remarks);
+    } else if (data.type.toLowerCase() == "vaccine") {
+        modal.find(":input[name='name']").val(data.details.name);
+        modal.find(":input[name='location']").val(data.details.location);
+        modal.find(":input[name='remarks']").val(data.details.remarks);
+    } else if (data.type.toLowerCase() == "clinic visit") {
+        modal.find(":input[name='specialist']").val(data.details.specialist);
+        modal.find(":input[name='location']").val(data.details.location);
+        modal.find(":input[name='remarks']").val(data.details.remarks);
+    } else if (data.type.toLowerCase() == "health stats") {
+        modal.find(":input[name='height']").val(data.details.height);
+        modal.find(":input[name='weight']").val(data.details.weight);
+        modal.find(":input[name='headCircumference']").val(data.details.headCircumference);
+        modal.find(":input[name='jaundiceLevel']").val(data.details.jaundiceLevel);
+        modal.find(":input[name='remarks']").val(data.details.remarks);
+    } else {
+        modal.find(":input[name='details']").val(data.details);
+    }
+
+    deleteBtn = modal.find(".delete-btn");
+    if (data.id) { deleteBtn.show(); } else { deleteBtn.hide(); }
+}
+
+function hideKeyboard(element) {
+    element.attr('readonly', 'readonly'); // Force keyboard to hide on input field.
+    element.attr('disabled', 'true'); // Force keyboard to hide on textarea field.
+    setTimeout(function() {
+        element.blur();  //actually close the keyboard
+        // Remove readonly attribute after keyboard is hidden.
+        element.removeAttr('readonly');
+        element.removeAttr('disabled');
+    }, 100);
+}
+
+function post_to_url(path, params, method) {
+    method = method || "post";
+
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+                                               
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+</script>
+</html>
